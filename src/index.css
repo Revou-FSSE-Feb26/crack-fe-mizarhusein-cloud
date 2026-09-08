@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+  background-color: #f5f0e8;
+  color: #6DB7D8;
+}
+
+/* Hero background zoom animation */
+@keyframes zoomHero {
+  from { transform: scale(1); }
+  to   { transform: scale(1.1); }
+}
+
+.animate-zoom {
+  animation: zoomHero 20s ease-in-out infinite alternate;
+}
+
+/* Scroll fade-in animations */
+.fade-up,
+.fade-left,
+.fade-right {
+  opacity: 0;
+  transition: opacity 1s ease, transform 1s ease;
+}
+
+.fade-up   { transform: translateY(60px); }
+.fade-left  { transform: translateX(-60px); }
+.fade-right { transform: translateX(60px); }
+
+.fade-up.show,
+.fade-left.show,
+.fade-right.show {
+  opacity: 1;
+  transform: translate(0);
+}
+
+/* Menu ordering: modal, backdrop, cart drawer transitions */
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes backdropIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes drawerIn {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+.modal-backdrop { animation: backdropIn .2s ease forwards; }
+.modal-panel { animation: modalIn .25s ease forwards; }
+.drawer-panel { animation: drawerIn .3s ease forwards; }
+
+/* Menu item "tap to select" hint */
+@keyframes tapPulse {
+  0%   { transform: scale(0.8); opacity: 0.6; }
+  70%  { transform: scale(1.7); opacity: 0; }
+  100% { transform: scale(1.7); opacity: 0; }
+}
+.tap-ring {
+  animation: tapPulse 1.8s ease-out infinite;
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
