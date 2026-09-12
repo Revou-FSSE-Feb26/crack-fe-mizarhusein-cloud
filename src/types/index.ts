@@ -53,3 +53,18 @@ export type ContactFormData = {
 };
 
 export type FormStatus = "idle" | "loading" | "success" | "error";
+
+export type ReservationStatus = "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED";
+
+export interface Reservation {
+  id: number;
+  customerName: string;
+  email: string;
+  phone: string;
+  partySize: number;
+  date: string;
+  status: ReservationStatus;
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
