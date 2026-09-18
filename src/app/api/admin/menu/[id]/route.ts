@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isAdminRequest } from "@/lib/adminAuth";
+import { getAdminToken } from "@/lib/adminAuth";
 
 const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:4000";
 
@@ -7,7 +7,8 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!(await isAdminRequest(request))) {
+  const token = await getAdminToken(request);
+  if (!token) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -20,7 +21,10 @@ export async function PATCH(
   try {
     const res = await fetch(new URL(`/menus/${id}`, BACKEND_URL), {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify(body),
     });
     const data = await res.json();
@@ -35,7 +39,8 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  if (!(await isAdminRequest(request))) {
+  const token = await getAdminToken(request);
+  if (!token) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -44,6 +49,7 @@ export async function DELETE(
   try {
     const res = await fetch(new URL(`/menus/${id}`, BACKEND_URL), {
       method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
     });
     const data = await res.json().catch(() => ({}));
     return NextResponse.json(data, { status: res.status });

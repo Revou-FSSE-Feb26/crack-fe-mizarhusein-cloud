@@ -16,3 +16,6 @@
 # misc
 *.tsbuildinfo
 .DS_Store
+
+# local curl cookie jars (contain live session tokens)
+cookies_*.txt

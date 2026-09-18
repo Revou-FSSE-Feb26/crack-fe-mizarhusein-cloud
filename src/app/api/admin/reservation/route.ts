@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { isAdminRequest } from "@/lib/adminAuth";
+import { getAdminToken } from "@/lib/adminAuth";
 
 const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:4000";
 
 export async function GET(request: NextRequest) {
-  if (!(await isAdminRequest(request))) {
+  const token = await getAdminToken(request);
+  if (!token) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -15,7 +16,10 @@ export async function GET(request: NextRequest) {
   if (status) url.searchParams.set("status", status);
 
   try {
-    const res = await fetch(url, { cache: "no-store" });
+    const res = await fetch(url, {
+      cache: "no-store",
+      headers: { Authorization: `Bearer ${token}` },
+    });
     const data = await res.json();
     return NextResponse.json(data, { status: res.status });
   } catch (err) {
