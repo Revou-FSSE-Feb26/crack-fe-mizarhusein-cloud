@@ -31,12 +31,12 @@ Website for **Saluna Beach Club**: marketing pages, a digital menu with ordering
 | Route | Who can open it | What it is |
 | ----- | --------------- | ---------- |
 | `/`, `/event`, `/promotion`, `/contact` | Everyone | Marketing pages |
-| `/menu` | Everyone | Digital menu with categories, item customization, and cart (loaded from the backend) |
+| `/menu` | Everyone | Digital menu with categories, item customization, and cart (loaded from the backend). Checkout stores the order in the backend and shows the order number. Guests can order without an account. |
 | `/login`, `/register` | Everyone | Customer sign-in and sign-up. Sign-up is instant (name, email, password of 6+ characters, no email verification) and logs the user straight in. |
 | `/reservation` | **Logged-in users** | Table booking form. Name and email are prefilled from the account. Visitors who aren't logged in are redirected to `/login` and sent back afterwards. |
 | `/my-reservations` | **Logged-in users** | The customer's own reservations with status, and a Cancel button for pending/confirmed ones |
 | `/admin/login` | Everyone | Admin sign-in (customer accounts are rejected here) |
-| `/admin/dashboard`, `/admin/menu`, `/admin/reservation`, `/admin/settings` | **Admins only** | Dashboard, menu management (CRUD), reservation management (change status, cancel) |
+| `/admin/dashboard`, `/admin/menu`, `/admin/reservation`, `/admin/orders`, `/admin/settings` | **Admins only** | Dashboard (live numbers and recent activity from the database, refreshed every 30 s), menu management (CRUD), reservation management (change status, cancel), order management (see items and totals, move orders through pending → preparing → served → completed, or cancel) |
 
 ## Roles and sessions
 
@@ -65,7 +65,7 @@ src/
 
 ## Not connected to the backend yet
 
-`/api/contact` (contact form) and `/api/orders` (checkout of the digital-menu cart) only log to the server console and don't store anything yet. `/api/restaurant` still reads static data from `server/data/menuData.ts`.
+`/api/contact` (the contact form) only logs to the server console and doesn't store anything yet. `/api/restaurant` still reads static data from `server/data/menuData.ts`.
 
 ## Scripts
 

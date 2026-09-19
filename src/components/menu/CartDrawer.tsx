@@ -12,29 +12,41 @@ interface Props {
 export default function CartDrawer({ onClose }: Props) {
   const { lines, updateQuantity, removeLine, clearCart, subtotal, tax, total } = useCart();
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [customerName, setCustomerName] = useState("");
+  const [tableNumber, setTableNumber] = useState("");
+  const [orderId, setOrderId] = useState<number | null>(null);
+  const [errorMessage, setErrorMessage] = useState("");
 
   async function handleSubmitOrder() {
     setStatus("loading");
+    setErrorMessage("");
+    setOrderId(null);
     try {
+      // Only ids and quantities are sent; the server looks up prices and totals itself.
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          lines: lines.map((l) => ({
-            name: l.item.name,
+          customerName,
+          tableNumber,
+          items: lines.map((l) => ({
+            menuId: l.item.id,
             quantity: l.quantity,
             notes: l.notes,
-            price: l.item.price,
           })),
-          subtotal,
-          tax,
-          total,
         }),
       });
-      if (!res.ok) throw new Error("Gagal mengirim pesanan");
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setErrorMessage(data.error || "Gagal mengirim pesanan. Coba lagi.");
+        setStatus("error");
+        return;
+      }
+      setOrderId(data.order?.id ?? null);
       setStatus("success");
       clearCart();
     } catch {
+      setErrorMessage("Gagal menghubungi server. Coba lagi.");
       setStatus("error");
     }
   }
@@ -100,6 +112,17 @@ export default function CartDrawer({ onClose }: Props) {
           )}
         </div>
 
+        {status === "success" && lines.length === 0 && (
+          <div className="border-t border-navy/10 px-6 py-5 text-center">
+            <p className="text-sm text-aegean font-sans font-medium">Pesanan berhasil dikirim!</p>
+            {orderId !== null && (
+              <p className="text-xs text-navy/60 font-sans mt-1">
+                Nomor pesanan Anda: <span className="font-semibold text-navy">#{orderId}</span>
+              </p>
+            )}
+          </div>
+        )}
+
         {lines.length > 0 && (
           <div className="border-t border-navy/10 px-6 py-5">
             <div className="flex justify-between text-sm text-navy/70 font-sans">
@@ -115,12 +138,25 @@ export default function CartDrawer({ onClose }: Props) {
               <span>{formatRupiah(total)}</span>
             </div>
 
-            {status === "success" ? (
-              <p className="text-center text-sm text-aegean font-sans mt-4">
-                Pesanan berhasil dikirim!
-              </p>
-            ) : (
-              <>
+            <>
+                <div className="grid grid-cols-2 gap-3 mt-4">
+                  <input
+                    type="text"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    maxLength={60}
+                    placeholder="Nama (opsional)"
+                    className="border border-navy/20 rounded-lg px-3 py-2 text-sm font-sans text-navy outline-none focus:border-navy"
+                  />
+                  <input
+                    type="text"
+                    value={tableNumber}
+                    onChange={(e) => setTableNumber(e.target.value)}
+                    maxLength={20}
+                    placeholder="No. meja (opsional)"
+                    className="border border-navy/20 rounded-lg px-3 py-2 text-sm font-sans text-navy outline-none focus:border-navy"
+                  />
+                </div>
                 <button
                   onClick={handleSubmitOrder}
                   disabled={status === "loading"}
@@ -129,12 +165,9 @@ export default function CartDrawer({ onClose }: Props) {
                   {status === "loading" ? "Mengirim..." : "Pesan Sekarang"}
                 </button>
                 {status === "error" && (
-                  <p className="text-center text-xs text-red-500 mt-2">
-                    Gagal mengirim pesanan. Coba lagi.
-                  </p>
+                  <p className="text-center text-xs text-red-500 mt-2">{errorMessage}</p>
                 )}
-              </>
-            )}
+            </>
           </div>
         )}
       </div>

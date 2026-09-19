@@ -78,3 +78,43 @@ export interface SessionUser {
   name: string | null;
   role: UserRole;
 }
+
+export type OrderStatus = "PENDING" | "PREPARING" | "SERVED" | "COMPLETED" | "CANCELLED";
+
+export interface OrderItem {
+  id: number;
+  menuId: number | null;
+  name: string;
+  price: number;
+  quantity: number;
+  notes: string | null;
+}
+
+export interface Order {
+  id: number;
+  customerName: string | null;
+  tableNumber: string | null;
+  notes: string | null;
+  status: OrderStatus;
+  subtotal: number;
+  tax: number;
+  total: number;
+  items: OrderItem[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Response of GET /api/admin/stats (the admin dashboard).
+export interface DashboardStats {
+  generatedAt: string;
+  todayReservations: number;
+  todayGuests: number;
+  upcomingReservations: number;
+  pendingReservations: number;
+  totalMenuItems: number;
+  ordersToday: number;
+  revenueToday: number;
+  activeOrders: number;
+  recentReservations: Reservation[];
+  recentOrders: Order[];
+}

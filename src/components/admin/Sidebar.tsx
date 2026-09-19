@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   IconCalendar,
   IconChevronDown,
+  IconClipboard,
   IconDashboard,
   IconLogout,
   IconMenu,
@@ -13,6 +14,7 @@ import {
 
 const MANAGEMENT_LINKS = [
   { label: "Reservation", href: "/admin/reservation", icon: IconCalendar },
+  { label: "Orders", href: "/admin/orders", icon: IconClipboard },
   { label: "Menu", href: "/admin/menu", icon: IconMenu },
 ];
 
