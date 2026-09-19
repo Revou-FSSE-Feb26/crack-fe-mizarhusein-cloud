@@ -2,6 +2,8 @@
 
 # Saluna Frontend
 
+**Live demo: https://saluna-beach-club.vercel.app** (frontend on Vercel, API on Railway, database on Supabase)
+
 Website for **Saluna Beach Club**: marketing pages, a digital menu with ordering cart, table reservations with customer accounts, and an admin dashboard. Built with Next.js 15 (App Router), React 18, TypeScript, and Tailwind CSS. Data comes from [`saluna-backend`](../saluna-backend) (NestJS + Prisma + PostgreSQL); this app proxies to it through its own `/api/*` routes.
 
 ## Getting started

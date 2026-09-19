@@ -19,3 +19,5 @@
 
 # local curl cookie jars (contain live session tokens)
 cookies_*.txt
+
+.vercel
