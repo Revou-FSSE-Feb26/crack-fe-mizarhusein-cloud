@@ -3,17 +3,21 @@ import { readSession, setSessionCookie } from "@/lib/session";
 
 const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:4000";
 
-const INVALID = { error: "Email atau password salah." };
-
+// Login for any role (customers and admins). The admin dashboard has its own
+// stricter form at /admin/login.
 export async function POST(request: NextRequest) {
   const body = (await request.json().catch(() => ({}))) as {
     email?: string;
     password?: string;
   };
-  const { email, password } = body;
+  const email = body.email?.trim();
+  const { password } = body;
 
   if (!email || !password) {
-    return NextResponse.json(INVALID, { status: 401 });
+    return NextResponse.json(
+      { error: "Email atau password salah." },
+      { status: 401 }
+    );
   }
 
   let backendRes: Response;
@@ -25,27 +29,24 @@ export async function POST(request: NextRequest) {
       cache: "no-store",
     });
   } catch (err) {
-    console.error("[api/admin/login] backend unreachable:", err);
+    console.error("[api/auth/login] backend unreachable:", err);
     return NextResponse.json(
-      { error: "Gagal menghubungi server." },
+      { error: "Gagal menghubungi server. Coba lagi nanti." },
       { status: 502 }
     );
   }
 
   if (!backendRes.ok) {
-    return NextResponse.json(INVALID, { status: 401 });
+    return NextResponse.json(
+      { error: "Email atau password salah." },
+      { status: 401 }
+    );
   }
 
   const data = (await backendRes.json()) as { access_token: string };
-
-  // Customers share the same login backend but must not enter the admin area;
-  // answer exactly like a wrong password so the page doesn't reveal which emails exist.
   const session = await readSession(data.access_token);
-  if (session?.role !== "ADMIN") {
-    return NextResponse.json(INVALID, { status: 401 });
-  }
 
-  const response = NextResponse.json({ success: true });
+  const response = NextResponse.json({ user: session });
   setSessionCookie(response, data.access_token);
   return response;
 }

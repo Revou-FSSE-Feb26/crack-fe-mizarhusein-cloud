@@ -1,12 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ADMIN_SESSION_COOKIE, verifySessionToken } from "@/lib/adminAuth";
+import { SESSION_COOKIE, readSession } from "@/lib/session";
 
 export async function middleware(request: NextRequest) {
-  const token = request.cookies.get(ADMIN_SESSION_COOKIE)?.value;
-  const isValid = await verifySessionToken(token);
+  const { pathname, search } = request.nextUrl;
+  const session = await readSession(request.cookies.get(SESSION_COOKIE)?.value);
 
-  if (!isValid) {
-    const loginUrl = new URL("/admin/login", request.url);
+  // Admin area: must be logged in AND have the ADMIN role.
+  if (pathname.startsWith("/admin")) {
+    if (session?.role !== "ADMIN") {
+      return NextResponse.redirect(new URL("/admin/login", request.url));
+    }
+    return NextResponse.next();
+  }
+
+  // Customer pages (booking, my reservations): any logged-in user.
+  if (!session) {
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("next", pathname + search);
     return NextResponse.redirect(loginUrl);
   }
 
@@ -19,5 +29,7 @@ export const config = {
     "/admin/reservation/:path*",
     "/admin/menu/:path*",
     "/admin/settings/:path*",
+    "/reservation/:path*",
+    "/my-reservations/:path*",
   ],
 };

@@ -1,8 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getUserToken } from "@/lib/session";
 
 const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:4000";
 
+// Booking requires a logged-in account; the backend links the booking to it.
 export async function POST(request: NextRequest) {
+  const token = await getUserToken(request);
+  if (!token) {
+    return NextResponse.json(
+      { error: "Silakan login terlebih dahulu." },
+      { status: 401 }
+    );
+  }
+
   const body = (await request.json().catch(() => null)) as {
     customerName?: string;
     email?: string;
@@ -29,14 +39,18 @@ export async function POST(request: NextRequest) {
   try {
     const res = await fetch(new URL("/reservations", BACKEND_URL), {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify(body),
     });
     const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
+      const message = Array.isArray(data.message) ? data.message[0] : data.message;
       return NextResponse.json(
-        { error: data.message || data.error || "Gagal membuat reservasi." },
+        { error: message || data.error || "Gagal membuat reservasi." },
         { status: res.status }
       );
     }

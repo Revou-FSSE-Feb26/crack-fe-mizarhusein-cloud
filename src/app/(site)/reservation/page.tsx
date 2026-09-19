@@ -1,13 +1,30 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
-import type { FormStatus } from "../../../types";
+import { FormEvent, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import type { FormStatus, SessionUser } from "../../../types";
 
 export default function ReservationPage() {
+  const router = useRouter();
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
   const [pax, setPax] = useState("");
   const [customPax, setCustomPax] = useState("");
   const [status, setStatus] = useState<FormStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
+
+  // Booking needs an account (enforced by middleware); prefill the details we already have.
+  useEffect(() => {
+    fetch("/api/auth/me", { cache: "no-store" })
+      .then((res) => res.json())
+      .then((data: { user: SessionUser | null }) => {
+        if (!data.user) return;
+        setFullName((current) => current || data.user?.name || "");
+        setEmail((current) => current || data.user?.email || "");
+      })
+      .catch(() => {});
+  }, []);
 
   const { minDate, maxDate } = useMemo(() => {
     const today = new Date();
@@ -43,16 +60,14 @@ export default function ReservationPage() {
     const formEl = event.currentTarget;
     const form = new FormData(formEl);
     const title = form.get("title") as string;
-    const fullName = (form.get("fullName") as string).trim();
-    const email = (form.get("email") as string).trim();
     const phone = (form.get("phone") as string).trim();
     const date = form.get("date") as string;
     const time = form.get("time") as string;
     const partySize = Number(pax === "custom" ? customPax : pax);
 
     const payload = {
-      customerName: `${title} ${fullName}`.trim(),
-      email,
+      customerName: `${title} ${fullName.trim()}`.trim(),
+      email: email.trim(),
       phone,
       partySize,
       date: new Date(`${date}T${time}:00`).toISOString(),
@@ -66,6 +81,11 @@ export default function ReservationPage() {
       });
       const data = await res.json().catch(() => ({}));
 
+      if (res.status === 401) {
+        router.push("/login?next=/reservation");
+        return;
+      }
+
       if (!res.ok) {
         setErrorMessage(data.error || "Gagal membuat reservasi. Coba lagi.");
         setStatus("error");
@@ -74,6 +94,8 @@ export default function ReservationPage() {
 
       setStatus("success");
       formEl.reset();
+      setFullName("");
+      setEmail("");
       setPax("");
       setCustomPax("");
     } catch (err) {
@@ -103,12 +125,20 @@ export default function ReservationPage() {
               Terima kasih, reservasi kamu sudah kami terima. Tim kami akan
               menghubungi untuk konfirmasi.
             </p>
-            <button
-              onClick={() => setStatus("idle")}
-              className="mt-6 rounded-full bg-navy px-6 py-3 text-xs uppercase tracking-[2px] text-white hover:bg-navy-dark transition"
-            >
-              Buat Reservasi Lain
-            </button>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <Link
+                href="/my-reservations"
+                className="rounded-full bg-navy px-6 py-3 text-xs uppercase tracking-[2px] text-white hover:bg-navy-dark transition"
+              >
+                Lihat Reservasi Saya
+              </Link>
+              <button
+                onClick={() => setStatus("idle")}
+                className="rounded-full border border-navy px-6 py-3 text-xs uppercase tracking-[2px] text-navy hover:bg-navy/5 transition"
+              >
+                Buat Reservasi Lain
+              </button>
+            </div>
           </div>
         ) : (
           <form
@@ -152,6 +182,8 @@ export default function ReservationPage() {
                   name="fullName"
                   type="text"
                   placeholder="Enter your full name"
+                  value={fullName}
+                  onChange={(event) => setFullName(event.target.value)}
                   required
                   className="w-full rounded-lg border border-navy/20 px-4 py-3 text-navy outline-none placeholder:text-navy/40 focus:border-navy"
                 />
@@ -169,6 +201,8 @@ export default function ReservationPage() {
                   name="email"
                   type="email"
                   placeholder="Enter your email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
                   required
                   className="w-full rounded-lg border border-navy/20 px-4 py-3 text-navy outline-none placeholder:text-navy/40 focus:border-navy"
                 />

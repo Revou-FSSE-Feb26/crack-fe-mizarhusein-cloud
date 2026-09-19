@@ -68,3 +68,13 @@ export interface Reservation {
   createdAt: string;
   updatedAt: string;
 }
+
+export type UserRole = "ADMIN" | "CUSTOMER";
+
+// Who is logged in, as returned by /api/auth/me.
+export interface SessionUser {
+  userId: number;
+  email: string;
+  name: string | null;
+  role: UserRole;
+}

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAdminToken } from "@/lib/adminAuth";
+import { getAdminToken } from "@/lib/session";
 
 const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:4000";
 

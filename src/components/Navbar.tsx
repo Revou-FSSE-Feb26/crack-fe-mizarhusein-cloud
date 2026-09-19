@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import type { SessionUser } from "../types";
 
 const NAV_LINKS = [
   { label: "Home", href: "/" },
@@ -12,7 +14,37 @@ const NAV_LINKS = [
 ];
 
 export default function Navbar() {
+  const router = useRouter();
+  const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [user, setUser] = useState<SessionUser | null>(null);
+
+  // The navbar lives in the shared layout and is not remounted between pages,
+  // so re-check the session after every navigation (covers login/logout).
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/auth/me", { cache: "no-store" })
+      .then((res) => res.json())
+      .then((data: { user: SessionUser | null }) => {
+        if (!cancelled) setUser(data.user);
+      })
+      .catch(() => {
+        if (!cancelled) setUser(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [pathname]);
+
+  async function handleLogout() {
+    setMobileOpen(false);
+    await fetch("/api/auth/logout", { method: "POST" });
+    setUser(null);
+    router.push("/");
+    router.refresh();
+  }
+
+  const firstName = user ? (user.name?.trim().split(" ")[0] ?? user.email) : "";
 
   return (
     <header className="fixed top-0 left-0 w-full z-50">
@@ -33,12 +65,31 @@ export default function Navbar() {
           ))}
         </nav>
 
-        <Link
-          href="/reservation"
-          className="hidden md:inline-block bg-navy text-white rounded-full px-8 py-3 text-xs uppercase tracking-[2px] font-sans hover:bg-navy-dark transition"
-        >
-          Reservation
-        </Link>
+        <div className="hidden md:flex items-center gap-6 font-sans text-xs uppercase tracking-[2px] text-navy">
+          {user ? (
+            <>
+              <Link
+                href={user.role === "ADMIN" ? "/admin/dashboard" : "/my-reservations"}
+                className="hover:opacity-60 transition"
+              >
+                {user.role === "ADMIN" ? "Admin" : `Hi, ${firstName}`}
+              </Link>
+              <button onClick={handleLogout} className="hover:opacity-60 transition uppercase">
+                Logout
+              </button>
+            </>
+          ) : (
+            <Link href="/login" className="hover:opacity-60 transition">
+              Login
+            </Link>
+          )}
+          <Link
+            href="/reservation"
+            className="inline-block bg-navy text-white rounded-full px-8 py-3 hover:bg-navy-dark transition"
+          >
+            Reservation
+          </Link>
+        </div>
 
         {/* Hamburger */}
         <button
@@ -64,6 +115,31 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
+            {user ? (
+              <>
+                <Link
+                  href={user.role === "ADMIN" ? "/admin/dashboard" : "/my-reservations"}
+                  className="text-left hover:opacity-60 transition"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {user.role === "ADMIN" ? "Admin" : "Reservasi Saya"}
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="text-left uppercase hover:opacity-60 transition"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <Link
+                href="/login"
+                className="text-left hover:opacity-60 transition"
+                onClick={() => setMobileOpen(false)}
+              >
+                Login
+              </Link>
+            )}
             <Link
               href="/reservation"
               onClick={() => setMobileOpen(false)}
