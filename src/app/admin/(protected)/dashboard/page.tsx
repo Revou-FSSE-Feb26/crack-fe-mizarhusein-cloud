@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import NotificationBell, { ADMIN_ACTIVITY_EVENT } from "../../../../components/admin/NotificationBell";
 import {
-  IconBell,
   IconCalendar,
   IconClipboard,
   IconClock,
@@ -192,14 +192,16 @@ export default function AdminDashboardPage() {
 
     load();
     const timer = setInterval(load, 30_000);
+    // The notification bell saw a new reservation/order: refresh the numbers right away.
+    window.addEventListener(ADMIN_ACTIVITY_EVENT, load);
     return () => {
       cancelled = true;
       clearInterval(timer);
+      window.removeEventListener(ADMIN_ACTIVITY_EVENT, load);
     };
   }, []);
 
   const cards = stats ? buildCards(stats) : null;
-  const attention = stats ? stats.pendingReservations + stats.activeOrders : 0;
 
   return (
     <main className="px-8 py-8">
@@ -214,14 +216,7 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="flex items-center gap-5">
-          <div className="relative" title="Pending reservations + active orders">
-            <IconBell className="w-5 h-5 text-navy/70" />
-            {attention > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[10px] leading-none rounded-full min-w-4 h-4 px-1 flex items-center justify-center">
-                {attention}
-              </span>
-            )}
-          </div>
+          <NotificationBell />
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-navy/10 flex items-center justify-center text-navy font-sans font-semibold text-xs">
               {adminName.charAt(0).toUpperCase()}

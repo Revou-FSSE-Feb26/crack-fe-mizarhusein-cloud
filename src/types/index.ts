@@ -128,3 +128,31 @@ export interface DashboardStats {
   recentReservations: Reservation[];
   recentOrders: Order[];
 }
+
+// One entry of the admin notification bell (GET /api/admin/notifications).
+export type NotificationItem =
+  | {
+      type: "reservation";
+      id: number;
+      createdAt: string;
+      isNew: boolean;
+      customerName: string;
+      partySize: number;
+      date: string;
+    }
+  | {
+      type: "order";
+      id: number;
+      createdAt: string;
+      isNew: boolean;
+      customerName: string | null;
+      tableNumber: string | null;
+      total: number;
+      itemCount: number;
+    };
+
+export interface NotificationFeed {
+  unreadCount: number;
+  seenAt: string;
+  items: NotificationItem[];
+}

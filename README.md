@@ -16,6 +16,7 @@ Website for **Saluna Beach Club**: marketing pages, a digital menu with ordering
 - **My account**: "My reservations" (with cancel), "My orders" (live status, refreshes by itself) and "Profile" (change name and password).
 
 **For admins**
+- **Notification bell** on the dashboard: a red badge counts new reservations and orders, a toast appears under the bell when something arrives (with a soft "ting" you can switch off), and the badge clears when the bell is opened. The read state is stored on the server per admin, so it survives reloads and devices.
 - **Dashboard** with live numbers from the database: today's reservations and guests, upcoming and pending reservations, orders and revenue today, active orders, recent reservations and orders (refreshes every 30 s).
 - **Reservations**: list, filter by status, confirm, complete, cancel.
 - **Orders**: see items, notes and totals; move each order through pending, preparing, served and completed, or cancel it.
@@ -49,6 +50,10 @@ Website for **Saluna Beach Club**: marketing pages, a digital menu with ordering
 **Dashboard**
 
 ![Admin dashboard](docs/screenshots/09-admin-dashboard.png)
+
+**Notification bell** (badge, dropdown of the latest reservations and orders, sound switch)
+
+![Notification bell](docs/screenshots/15-admin-notifications.png)
 
 **Reservations**
 
@@ -109,7 +114,7 @@ The data lives in the backend ([`saluna-backend`](https://github.com/Revou-FSSE-
 | `/my-orders` | **Logged-in users** | The customer's own orders with live status (refreshes every 20 s) |
 | `/profile` | **Logged-in users** | Change name and password |
 | `/admin/login` | Everyone | Admin sign-in (customer accounts are rejected here) |
-| `/admin/dashboard`, `/admin/menu`, `/admin/reservation`, `/admin/orders`, `/admin/users`, `/admin/settings` | **Admins only** | Dashboard (live numbers and recent activity from the database, refreshed every 30 s), menu management (CRUD), reservation management (change status, cancel), order management (see items and totals, move orders through pending → preparing → served → completed, or cancel), user management (change a role, delete an account) |
+| `/admin/dashboard`, `/admin/menu`, `/admin/reservation`, `/admin/orders`, `/admin/users`, `/admin/settings` | **Admins only** | Dashboard (live numbers and recent activity from the database, refreshed every 30 s, with a notification bell that checks for new reservations and orders every 10 s), menu management (CRUD), reservation management (change status, cancel), order management (see items and totals, move orders through pending → preparing → served → completed, or cancel), user management (change a role, delete an account) |
 
 ## Roles and sessions
 
