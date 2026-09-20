@@ -23,16 +23,24 @@ export default function Navbar() {
   // so re-check the session after every navigation (covers login/logout).
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/auth/me", { cache: "no-store" })
-      .then((res) => res.json())
-      .then((data: { user: SessionUser | null }) => {
-        if (!cancelled) setUser(data.user);
-      })
-      .catch(() => {
-        if (!cancelled) setUser(null);
-      });
+
+    function loadSession() {
+      fetch("/api/auth/me", { cache: "no-store" })
+        .then((res) => res.json())
+        .then((data: { user: SessionUser | null }) => {
+          if (!cancelled) setUser(data.user);
+        })
+        .catch(() => {
+          if (!cancelled) setUser(null);
+        });
+    }
+
+    loadSession();
+    // The profile page fires this after the name changes.
+    window.addEventListener("saluna:session-changed", loadSession);
     return () => {
       cancelled = true;
+      window.removeEventListener("saluna:session-changed", loadSession);
     };
   }, [pathname]);
 

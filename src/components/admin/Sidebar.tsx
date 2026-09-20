@@ -10,12 +10,14 @@ import {
   IconLogout,
   IconMenu,
   IconSettings,
+  IconUsers,
 } from "./icons";
 
 const MANAGEMENT_LINKS = [
   { label: "Reservation", href: "/admin/reservation", icon: IconCalendar },
   { label: "Orders", href: "/admin/orders", icon: IconClipboard },
   { label: "Menu", href: "/admin/menu", icon: IconMenu },
+  { label: "Users", href: "/admin/users", icon: IconUsers },
 ];
 
 export default function Sidebar() {

@@ -29,8 +29,11 @@ export const config = {
     "/admin/reservation/:path*",
     "/admin/menu/:path*",
     "/admin/orders/:path*",
+    "/admin/users/:path*",
     "/admin/settings/:path*",
     "/reservation/:path*",
     "/my-reservations/:path*",
+    "/my-orders/:path*",
+    "/profile/:path*",
   ],
 };

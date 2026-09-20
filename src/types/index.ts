@@ -71,6 +71,16 @@ export interface Reservation {
 
 export type UserRole = "ADMIN" | "CUSTOMER";
 
+// An account as listed on the admin Users page (never includes the password).
+export interface AdminUser {
+  id: number;
+  email: string;
+  name: string | null;
+  role: UserRole;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Who is logged in, as returned by /api/auth/me.
 export interface SessionUser {
   userId: number;

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import AccountTabs from "../../../components/auth/AccountTabs";
 import type { Reservation, ReservationStatus } from "../../../types";
 
 const STATUS_LABEL: Record<ReservationStatus, string> = {
@@ -86,6 +87,7 @@ export default function MyReservationsPage() {
         <h1 className="mt-3 text-center font-serif text-4xl text-navy md:text-5xl">
           Reservasi Saya
         </h1>
+        <AccountTabs />
 
         {error && <p className="mt-8 text-center text-sm text-red-500">{error}</p>}
 
