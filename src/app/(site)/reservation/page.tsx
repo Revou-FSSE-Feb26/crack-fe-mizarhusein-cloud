@@ -64,6 +64,7 @@ export default function ReservationPage() {
     const date = form.get("date") as string;
     const time = form.get("time") as string;
     const partySize = Number(pax === "custom" ? customPax : pax);
+    const notes = (form.get("notes") as string).trim();
 
     const payload = {
       customerName: `${title} ${fullName.trim()}`.trim(),
@@ -71,6 +72,7 @@ export default function ReservationPage() {
       phone,
       partySize,
       date: new Date(`${date}T${time}:00`).toISOString(),
+      notes: notes || undefined,
     };
 
     try {
@@ -316,6 +318,23 @@ export default function ReservationPage() {
                 <p className="mt-2 text-xs text-navy/60">
                   Last reservation slot: 22:30. Orders close at 23:00.
                 </p>
+              </div>
+
+              <div className="md:col-span-2">
+                <label
+                  htmlFor="notes"
+                  className="mb-2 block text-sm font-medium text-navy"
+                >
+                  Special Request / Notes (optional)
+                </label>
+                <textarea
+                  id="notes"
+                  name="notes"
+                  rows={3}
+                  maxLength={300}
+                  placeholder="e.g. window seat, birthday celebration, food allergies"
+                  className="w-full rounded-lg border border-navy/20 px-4 py-3 text-navy outline-none placeholder:text-navy/40 focus:border-navy"
+                />
               </div>
             </div>
 
